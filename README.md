@@ -3,9 +3,9 @@
 
 ##使用方法
 
-###1、将Lib放在Application/Common目录中，作为公共模块库
+* 1、将Lib放在Application/Common目录中，作为公共模块库
 
-###2、在Application/Common/Conf/config.php中添加
+* 2、在Application/Common/Conf/config.php中添加
 
 ```php
 //注册新的命名空间，存放自定义类库
@@ -54,7 +54,7 @@
 ),
 ```
 
-###3、调用
+* 3、调用
 
 ```php
 $sms = SmsProxy::getInstance();
