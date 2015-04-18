@@ -77,9 +77,9 @@ class SmsProxy implements ISms {
                         //类型为天翼自定义验证码方式
                         'smsType'   => 'sms189_custom',
                         //App Id
-                        'app_id'    => '815014150000040983',
+                        'app_id'    => 'xxx',
                         //App Secret
-                        'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4'
+                        'app_secret'=> 'xxxxxx'
                     )
                 */
                 $this->smsEntity = new CustomSms();
@@ -90,9 +90,9 @@ class SmsProxy implements ISms {
                        //类型为天翼模板短信方式
                        'smsType'   => 'sms189_template',
                        //App Id
-                       'app_id'    => '815014150000040983',
+                       'app_id'    => 'xxx',
                        //App Secret
-                       'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4',
+                       'app_secret'=> 'xxxxxx',
                        //模板ID
                        'template_id' => xxx,
                        //短信模板
@@ -105,11 +105,11 @@ class SmsProxy implements ISms {
             case self::_SMSEMD_:
                 /*  array(
                         //短信系统平台用户名即管理名称
-                        'username' => 'sms135006',
+                        'username' => 'xxx',
                         //短信系统平台用户登录密码
-                        'password' => 'G95400SS',
+                        'password' => 'xxxxxx',
                         //在接口触发页面可以获取
-                        'secret_key' => 'c138e82cb43592b21e5877d3135ab227',
+                        'secret_key' => 'xxxxxxxx',
                         //短信正文模板
                         'content_tpl' => "您正在注册华友汇，本次验证码为:%s，两分钟内有效！【%s】",
                         //短信后缀签名，需要中文输入法的左右括号，签名字数要在3-8个字 例：【公司名称】 短信内容 = 短信正文+短信签名
