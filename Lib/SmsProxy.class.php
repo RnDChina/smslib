@@ -11,6 +11,7 @@
 
 namespace Lib;
 use Lib\SmsLib\ISms;
+use Lib\SmsLib\ResponseData;
 use Lib\SmsLib\Sms189\CustomSms;
 use Lib\SmsLib\Sms189\TemplateSms;
 use Lib\SmsLib\SmsEdmcn\EdmSms;
@@ -39,6 +40,18 @@ class SmsProxy implements ISms {
     const _SMSEMD_= 'smsemd';
 
     /**
+     * 平台类型
+     * @var
+     */
+    private $smsType;
+
+    /**
+     * 使用场景类型 1、用户注册 2、找回密码
+     * @var
+     */
+    private $sceneType;
+
+    /**
      * 短信平台配置
      * @var null
      */
@@ -50,16 +63,17 @@ class SmsProxy implements ISms {
      */
     private $smsEntity = null;
 
-    static private $_instance;
+    /**
+     * 缓存前缀，缓存到文件用来教研验证码，和控制频繁发送
+     * @var
+     */
+    private $cacheSmsPrefix = 'cache_sms_';
 
-    private function __construct() {
-    }
-
-    public static function getInstance(){
-        if(!(self::$_instance instanceof self)){
-            self::$_instance = new self;
-        }
-        return self::$_instance;
+    /**
+     * 生成实例
+     */
+    static public function createInstance() {
+        return new SmsProxy();
     }
 
     /**
@@ -70,16 +84,16 @@ class SmsProxy implements ISms {
      */
     public function setConf($config) {
         $this->smsConfig = $config;
-        $smsType = $this->smsConfig['smsType'];
-        switch($smsType) {
+        $this->smsType = $this->smsConfig['smsType'];
+        switch($this->smsType) {
             case self::_SMS189_CUSTOM_:
                 /*  array(
                         //类型为天翼自定义验证码方式
                         'smsType'   => 'sms189_custom',
                         //App Id
-                        'app_id'    => 'xxx',
+                        'app_id'    => '815014150000040983',
                         //App Secret
-                        'app_secret'=> 'xxxxxx'
+                        'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4'
                     )
                 */
                 $this->smsEntity = new CustomSms();
@@ -90,9 +104,9 @@ class SmsProxy implements ISms {
                        //类型为天翼模板短信方式
                        'smsType'   => 'sms189_template',
                        //App Id
-                       'app_id'    => 'xxx',
+                       'app_id'    => '815014150000040983',
                        //App Secret
-                       'app_secret'=> 'xxxxxx',
+                       'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4',
                        //模板ID
                        'template_id' => xxx,
                        //短信模板
@@ -105,11 +119,11 @@ class SmsProxy implements ISms {
             case self::_SMSEMD_:
                 /*  array(
                         //短信系统平台用户名即管理名称
-                        'username' => 'xxx',
+                        'username' => 'sms135006',
                         //短信系统平台用户登录密码
-                        'password' => 'xxxxxx',
+                        'password' => 'G95400SS',
                         //在接口触发页面可以获取
-                        'secret_key' => 'xxxxxxxx',
+                        'secret_key' => 'c138e82cb43592b21e5877d3135ab227',
                         //短信正文模板
                         'content_tpl' => "您正在注册华友汇，本次验证码为:%s，两分钟内有效！【%s】",
                         //短信后缀签名，需要中文输入法的左右括号，签名字数要在3-8个字 例：【公司名称】 短信内容 = 短信正文+短信签名
@@ -127,12 +141,43 @@ class SmsProxy implements ISms {
 
     /**
      * 发送短信验证码
-     * @param $mobile
-     * @param $message
-     * @return null
+     * @param string $mobile 手机号
+     * @param string $message 验证码
+     * @param int $sceneType 场景ID
+     * @return ResponseData 返回ResponseData格式数据
      */
-    public function send($mobile,$message = null) {
-        return $this->smsEntity->send($mobile,$message);
+    public function send($mobile,$message = null,$sceneType = 0) {
+        $response = new ResponseData();
+        //验证手机格式
+        if (!preg_match('/^1[\d]{10}$/', $mobile)){
+            $response->code = ResponseData::__MOBILE_ERROR__;
+            $response->message = "手机格式错误";
+            $response->data = null;
+            return $response;
+        }
+        $cacheId = $this->cacheSmsPrefix.$mobile.'_'.$sceneType;
+        //短信频繁度验证避免浪费短信包同一号码30秒只能发1次
+        $verifySms = json_decode(S($cacheId));
+        if( $verifySms && $verifySms->ctime > time() - 30) {
+            $response->code = ResponseData::__REQUEST_ERROR__;
+            $response->message = "请求太频繁";
+            $response->data = null;
+            return $response;
+        }
+        //dump($mobile.$message.$sceneType);exit;
+        $response = $this->smsEntity->send($mobile,$message,$sceneType);
+        if( $response && $response->code == 0 ) {
+            $jsonAry = array(
+                'mobile' => $mobile,
+                'message' => $message,
+                'sceneType' => $this->getSceneType(),
+                'ctime' => $this->getSendTimestamp(),
+                'ip' => get_client_ip()
+            );
+            //发送成功缓存验证码信息，只缓存5分钟
+            S($cacheId,json_encode($jsonAry),300);
+        }
+        return $response;
     }
 
     /**
@@ -152,5 +197,50 @@ class SmsProxy implements ISms {
         return $this->smsEntity->getSmsCode();
     }
 
-    private function __clone(){}
+    /**
+     * 获取生成时间戳
+     * @return int
+     */
+    public function getSendTimestamp() {
+        return $this->smsEntity->getSendTimestamp();
+    }
+
+    /**
+     * 获取场景ID
+     * @return int
+     */
+    public function getSceneType() {
+        return $this->smsEntity->getSceneType();
+    }
+
+    /**
+     * 检查短信验证码是否有效
+     * @param string $mobile   手机号
+     * @param string $message  验证码
+     * @param int $sceneType 场景类型 1 注册 2 找回密码
+     * @param int $timeout 超时时间，单位秒，默认120秒（2分钟）
+     * @return bool
+     */
+    public function chkSmsVerify($mobile,$message,$sceneType,$timeout = 120) {
+        $cacheId = $this->cacheSmsPrefix.$mobile.'_'.$sceneType;
+        $verifySms = json_decode(S($cacheId));
+        if( $verifySms ) {
+            if( $message == $verifySms->message ) {
+                //验证码超时
+                if($verifySms->ctime + $timeout < time()) {
+                    S($cacheId,null);
+                    return false;
+                }
+                //验证通过，销毁缓存的验证码
+                else {
+                    S($cacheId,null);
+                    return true;
+                }
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
 }

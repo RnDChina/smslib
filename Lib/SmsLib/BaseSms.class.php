@@ -35,6 +35,18 @@ class BaseSms implements ISms {
      */
     protected $timestamp;
 
+    /**
+     * 场景类型ID 1 注册 2 找回密码
+     * @var
+     */
+    protected $sceneType;
+
+    /**
+     * 响应数据
+     * @var
+     */
+    protected $response = null;
+
     public function __construct() {
         date_default_timezone_set('Asia/Shanghai');//设置时区
         $this->timestamp = time();
@@ -53,17 +65,16 @@ class BaseSms implements ISms {
 
     /**
      * 发送验证码，子类重写
-     * @param $mobile
-     * @param $message
+     * @param string $mobile 手机号
+     * @param string $message 验证码
+     * @param int $sceneType 场景类型
      * @return string
      */
-    public function send($mobile,$message = null) {
-        if (!preg_match('/^1[\d]{10}$/', $mobile)){
-            echo json_encode(array('status'=>'0','error'=>'手机号码格式错误'));
-            exit;
-        }
+    public function send($mobile,$message = null,$sceneType = 1) {
         $this->mobile = $mobile;
         $this->message = $message ? $message : $this->createSmsCode();
+        $this->sceneType = $sceneType;
+        $this->response = new ResponseData();
     }
 
     /**
@@ -86,5 +97,21 @@ class BaseSms implements ISms {
      */
     public function getSmsCode() {
         return $this->message;
+    }
+
+    /**
+     * 获取发送时间戳
+     * $return int
+     */
+    public function getSendTimestamp() {
+        return $this->timestamp;
+    }
+
+    /**
+     * 获取场景ID
+     * @return int 场景ID
+     */
+    public function getSceneType(){
+        return $this->sceneType;
     }
 }

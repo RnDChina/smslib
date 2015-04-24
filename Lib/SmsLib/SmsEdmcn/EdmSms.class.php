@@ -51,6 +51,14 @@ class EdmSms extends BaseSms {
     private $suffix = '';
 
     /**
+     * 错误信息
+     * @var array
+     */
+    private $msg_arr = array(1 => '发送成功',2 => '参数不正确',3 => '验证失败',4 => '用户名或密码错误',
+        5 => '数据库操作失败',6 => '余额不足',7 => '内容不符合格式',8 => '频率超限',
+        9 => '接口超时',10 => '后缀签名长度超过限制');
+
+    /**
      * 接口地址
      * @var string
      */
@@ -81,12 +89,13 @@ class EdmSms extends BaseSms {
 
     /**
      * 发送验证码
-     * @param $mobile
-     * @param $message
+     * @param string $mobile 手机号
+     * @param string $message 验证码
+     * @param int $sceneType 场景ID
      * @return string
      */
-    public function send($mobile,$message = null) {
-        parent::send($mobile,$message);
+    public function send($mobile,$message = null,$sceneType = 1) {
+        parent::send($mobile,$message,$sceneType);
 
         $content = sprintf($this->content_tpl,$message,$this->suffix);
         $content = urlencode($content);
@@ -101,8 +110,11 @@ class EdmSms extends BaseSms {
             'content' => $content,
             'authkey' => $authKey
         );
-
-        return $this->triggerSms($options);
+        $code = $this->triggerSms($options);
+        $this->response->code = $code == 1 ? 0 : $code;
+        $this->response->message = in_array($code,$this->msg_arr) ?$this->msg_arr[$code] : '未知错误';
+        $this->response->data = null;
+        return $this->response;
     }
 
     /**

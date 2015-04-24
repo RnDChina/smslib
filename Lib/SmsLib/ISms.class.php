@@ -23,22 +23,35 @@ interface ISms{
 
     /**
      * 发送短信
-     * @param $mobile
-     * @param $message
+     * @param string $mobile 手机号
+     * @param string $message 验证码
+     * @param int $sceneType 场景类型 1注册 2找回密码
      * @return mixed
      */
-    public function send($mobile,$message = null);
+    public function send($mobile,$message = null,$sceneType = 1);
 
     /**
      * 生成验证码
-     * @param int $len
+     * @param int $len 长度
      * @return mixed
      */
     public function createSmsCode( $len = 6 );
 
     /**
      * 获取验证码
-     * @return string
+     * @return string 验证码
      */
     public function getSmsCode();
+
+    /**
+     * 获取发送时间戳
+     * @return int 时间戳
+     */
+    public function getSendTimestamp();
+
+    /**
+     * 获取场景ID
+     * @return int 场景ID
+     */
+    public function getSceneType();
 }

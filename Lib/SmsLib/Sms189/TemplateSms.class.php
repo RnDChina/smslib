@@ -69,14 +69,15 @@ class TemplateSms extends BaseSms189 {
      * 下发短信
      * @param $mobile
      * @param null $message
+     * @param int $sceneType
      * @return string
      */
-    public function send($mobile,$message = null) {
-        parent::send($mobile,$message);
+    public function send($mobile,$message = null,$sceneType = 1) {
+        parent::send($mobile,$message,$sceneType);
 
         $time = date('Y-m-d H:i:s',$this->timestamp);
         $access_token = $this->getAccessKey();
-        $template_param = sprintf($this->template_param_tpl,$this->createSmsCode(),'2');
+        $template_param = sprintf($this->template_param_tpl,$message,'2');
         $post_data = array(
             'app_id'            => $this->app_id,
             'access_token'      => $access_token,
@@ -86,7 +87,12 @@ class TemplateSms extends BaseSms189 {
             'timestamp'         => $time
         );
         $require_str = urldecode(http_build_query($post_data));
-        $response = $this->curl_post($this->send_url,$require_str);
-        return json_decode($response);
+        $response_str = $this->curl_post($this->send_url,$require_str);
+        $res = json_decode($response_str);
+        //{"res_code": "0","res_message": "Success","identifier": "000000001"}
+        $this->response->code = $res->res_code;
+        $this->response->message = in_array($res->res_code,ErrorCode::$_ERROR_NO_) ? ErrorCode::$_ERROR_NO_[$res->res_code] : '未知错误';
+        $this->response->data = $res;
+        return $this->response;
     }
 }

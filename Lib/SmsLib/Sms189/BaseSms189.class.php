@@ -72,10 +72,11 @@ class BaseSms189 extends BaseSms {
      * 下发验证码
      * @param $mobile
      * @param null $message
+     * @param int $sceneType
      * @return string
      */
-    public function send( $mobile,$message = null) {
-        parent::send($mobile,$message);
+    public function send( $mobile,$message = null,$sceneType = 1) {
+        parent::send($mobile,$message,$sceneType);
     }
 
     /**
