@@ -57,8 +57,35 @@
 * 3、调用
 
 ```php
-$sms = SmsProxy::getInstance();
-$sms->setConf(C('SMS_189CUSTOM_CONFIG'));
-//不传验证码，会默认生成6位随机数字作为验证码
-$obj = $sms->send('手机号');
+$stringUtil = new \Org\Util\String();
+$sms = SmsProxy::createInstance();
+//天翼自定义验证码套餐
+//$sms->setConf(C('SMS_189CUSTOM_CONFIG'));
+//天翼模板短信套餐
+//$sms->setConf(C('SMS_189TEMPLATE_CONFIG'));
+//美橙短信验证码
+$this->sms->setConf(C('SMS_EDMCN_CONFIG'));
+$response = $this->sms->send($mobile,$stringUtil->randString(6,1),1);
+if( !$response ){
+    echo "send sms code failed!";
+    exit;
+}
+echo json_encode($response);
+```
+
+* 4、验证
+
+```php
+$code = I("param.code");
+$mobile = I('param.mobile');
+if (!preg_match('/^1[\d]{10}$/', $mobile)){
+    echo "手机号格式不正确！";
+    exit;
+}
+$res = $this->sms->chkSmsVerify($mobile,$code,1);
+if( $res ) {
+    echo "Success!";
+} else {
+    echo "Failed!";
+}
 ```
