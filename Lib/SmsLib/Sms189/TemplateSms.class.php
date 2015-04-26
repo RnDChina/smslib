@@ -77,7 +77,7 @@ class TemplateSms extends BaseSms189 {
 
         $time = date('Y-m-d H:i:s',$this->timestamp);
         $access_token = $this->getAccessKey();
-        $template_param = sprintf($this->template_param_tpl,$message,'2');
+        $template_param = sprintf($this->template_param_tpl,$this->message,'2');
         $post_data = array(
             'app_id'            => $this->app_id,
             'access_token'      => $access_token,
