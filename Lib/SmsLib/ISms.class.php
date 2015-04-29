@@ -38,6 +38,12 @@ interface ISms{
     public function createSmsCode( $len = 6 );
 
     /**
+     * 获取手机号
+     * @return string
+     */
+    public function getMobile();
+
+    /**
      * 获取验证码
      * @return string 验证码
      */

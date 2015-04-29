@@ -92,6 +92,14 @@ class BaseSms implements ISms {
     }
 
     /**
+     * 获取手机号
+     * @return string
+     */
+    public function getMobile() {
+        return $this->mobile;
+    }
+
+    /**
      * 获取验证码
      * @return string
      */

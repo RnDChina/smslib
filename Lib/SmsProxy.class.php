@@ -168,7 +168,7 @@ class SmsProxy implements ISms {
         $response = $this->smsEntity->send($mobile,$message,$sceneType);
         if( $response && $response->code == 0 ) {
             $jsonAry = array(
-                'mobile' => $mobile,
+                'mobile' => $this->getMobile(),
                 'message' => $this->getSmsCode(),
                 'sceneType' => $this->getSceneType(),
                 'ctime' => $this->getSendTimestamp(),
@@ -187,6 +187,14 @@ class SmsProxy implements ISms {
      */
     public function createSmsCode( $len = 6 ) {
         return $this->smsEntity->createSmsCode( $len );
+    }
+
+    /**
+     * 获取手机号
+     * @return string
+     */
+    public function getMobile() {
+        return $this->smsEntity->getMobile();
     }
 
     /**
