@@ -169,7 +169,7 @@ class SmsProxy implements ISms {
         if( $response && $response->code == 0 ) {
             $jsonAry = array(
                 'mobile' => $mobile,
-                'message' => $message,
+                'message' => $this->getSmsCode(),
                 'sceneType' => $this->getSceneType(),
                 'ctime' => $this->getSendTimestamp(),
                 'ip' => get_client_ip()
