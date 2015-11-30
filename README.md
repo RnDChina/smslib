@@ -52,6 +52,34 @@
     //短信后缀签名，需要中文输入法的左右括号，签名字数要在3-8个字 例：【公司名称】 短信内容 = 短信正文+短信签名
     'suffix' => 'XXX'
 ),
+
+//漫道科技短信验证码配置
+'SMS_ENTINFO_CONFIG' => array(
+    'smsType'   => 'smsentinfo',
+    'sn' => 'xxx-xxx-xxx-xxxxx',
+    'password' => 'xxxxxx',
+    'ext' => '',
+    'rrid' => '',
+    'stime' => '',
+    'appName' => 'xxx'
+),
+
+//容联云通讯短信验证码配置
+'SMS_CLOOPEN_CONFIG' => array(
+  'account_sid' => 'XXXXXXXXXXXXXXXXXXXXXXXXXX',
+  'account_token' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+  'app_id' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXx',
+  'is_sandbox' => true,
+  'template_id' => 1
+),
+
+//容联云通讯语音短信验证码配置
+'SMS_VOICECLOOPEN_CONFIG' => array(
+     'account_sid' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'account_token' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'app_id' => 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX',
+     'is_sandbox' => true,
+ )
 ```
 
 * 3、调用
@@ -65,6 +93,13 @@ $sms = SmsProxy::createInstance();
 //$sms->setConf(C('SMS_189TEMPLATE_CONFIG'));
 //美橙短信验证码
 $this->sms->setConf(C('SMS_EDMCN_CONFIG'));
+//漫道科技
+$this->sms->setConf(C('SMS_ENTINFO_CONFIG'));
+//容联云通讯
+$this->sms->setConf(C('SMS_CLOOPEN_CONFIG'));
+//容联云通讯语音
+$this->sms->setConf(C('SMS_VOICECLOOPEN_CONFIG'));
+
 $response = $this->sms->send($mobile,$stringUtil->randString(6,1),1);
 if( !$response ){
     echo "send sms code failed!";

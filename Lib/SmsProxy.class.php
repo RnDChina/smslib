@@ -10,19 +10,23 @@
  */
 
 namespace Lib;
+use Exception;
 use Lib\SmsLib\ISms;
 use Lib\SmsLib\ResponseData;
 use Lib\SmsLib\Sms189\CustomSms;
 use Lib\SmsLib\Sms189\TemplateSms;
+use Lib\SmsLib\SmsCloopen\CloopenSms;
+use Lib\SmsLib\SmsCloopen\CloopenVoiceSms;
 use Lib\SmsLib\SmsEdmcn\EdmSms;
-use Think\Exception;
+use Lib\SmsLib\SmsEntinfo\EntinfoSms;
 
 /**
  * 短信平台代理
  *
  * @package Lib
  */
-class SmsProxy implements ISms {
+class SmsProxy implements ISms
+{
     //---------------平台类型--------------------
     /**
      * 天翼自定义验证码
@@ -38,6 +42,21 @@ class SmsProxy implements ISms {
      * 美橙短信验证码
      */
     const _SMSEMD_= 'smsemd';
+
+    /**
+     * 漫道科技短信
+     */
+    const _SMSENTINFO_ = 'smsentinfo';
+
+    /**
+     * 容联云通讯
+     */
+    const _SMSCLOOPEN_ = 'sms_cloopen';
+
+    /**
+     * 容联云通讯语音验证码
+     */
+    const _SMSVOICECLOOPEN_ = 'sms_voice_cloopen';
 
     /**
      * 平台类型
@@ -72,7 +91,8 @@ class SmsProxy implements ISms {
     /**
      * 生成实例
      */
-    static public function createInstance() {
+    static public function createInstance()
+    {
         return new SmsProxy();
     }
 
@@ -82,7 +102,8 @@ class SmsProxy implements ISms {
      * @throws Exception
      * @return null
      */
-    public function setConf($config) {
+    public function setConf($config)
+    {
         $this->smsConfig = $config;
         $this->smsType = $this->smsConfig['smsType'];
         switch($this->smsType) {
@@ -133,6 +154,42 @@ class SmsProxy implements ISms {
                 $this->smsEntity = new EdmSms();
                 $this->smsEntity->setConf($config);
                 break;
+            case self::_SMSENTINFO_:
+                /* array(
+                    'smsType'   => 'smsentinfo',
+                    'sn' => 'SDK-BBX-010-22217',
+                    'password' => '13022',
+                    'ext' => '',
+                    'rrid' => '',
+                    'stime' => '',
+                    'appName' => '多美淘'
+                )*/
+                $this->smsEntity = new EntinfoSms();
+                $this->smsEntity->setConf($config);
+                break;
+            case self::_SMSCLOOPEN_:
+                /* array(
+                      'account_sid' => '8a48b5514dd25566014dd776124a0429',
+                      'account_token' => '4eb09d93e6a346128dfb59670cae009c',
+                      'app_id' => '8a48b5514dd25566014dd7765524042b',
+                      'is_sandbox' => true,
+                      'template_id' => 1
+                  )
+                 */
+                $this->smsEntity = new CloopenSms();
+                $this->smsEntity->setConf($config);
+                break;
+            case self::_SMSVOICECLOOPEN_:
+                /* array(
+                        'account_sid' => '8a48b5514dd25566014dd776124a0429',
+                        'account_token' => '4eb09d93e6a346128dfb59670cae009c',
+                        'app_id' => '8a48b5514dd25566014dd7765524042b',
+                        'is_sandbox' => true,
+                    )
+                   */
+                $this->smsEntity = new CloopenVoiceSms();
+                $this->smsEntity->setConf($config);
+                break;
             default:
                 throw new Exception("不存在的短信平台类型");
                 break;
@@ -146,7 +203,8 @@ class SmsProxy implements ISms {
      * @param int $sceneType 场景ID
      * @return ResponseData 返回ResponseData格式数据
      */
-    public function send($mobile,$message = null,$sceneType = 0) {
+    public function send($mobile,$message = null,$sceneType = 0)
+    {
         $response = new ResponseData();
         //验证手机格式
         if (!preg_match('/^1[\d]{10}$/', $mobile)){
@@ -185,7 +243,8 @@ class SmsProxy implements ISms {
      * @param int $len
      * @return null
      */
-    public function createSmsCode( $len = 6 ) {
+    public function createSmsCode( $len = 6 )
+    {
         return $this->smsEntity->createSmsCode( $len );
     }
 
@@ -193,7 +252,8 @@ class SmsProxy implements ISms {
      * 获取手机号
      * @return string
      */
-    public function getMobile() {
+    public function getMobile()
+    {
         return $this->smsEntity->getMobile();
     }
 
@@ -209,7 +269,8 @@ class SmsProxy implements ISms {
      * 获取生成时间戳
      * @return int
      */
-    public function getSendTimestamp() {
+    public function getSendTimestamp()
+    {
         return $this->smsEntity->getSendTimestamp();
     }
 
@@ -217,7 +278,8 @@ class SmsProxy implements ISms {
      * 获取场景ID
      * @return int
      */
-    public function getSceneType() {
+    public function getSceneType()
+    {
         return $this->smsEntity->getSceneType();
     }
 
@@ -229,7 +291,8 @@ class SmsProxy implements ISms {
      * @param int $timeout 超时时间，单位秒，默认120秒（2分钟）
      * @return bool
      */
-    public function chkSmsVerify($mobile,$message,$sceneType,$timeout = 120) {
+    public function chkSmsVerify($mobile,$message,$sceneType,$timeout = 120)
+    {
         $cacheId = $this->cacheSmsPrefix.$mobile.'_'.$sceneType;
         $verifySms = json_decode(S($cacheId));
         if( $verifySms ) {
