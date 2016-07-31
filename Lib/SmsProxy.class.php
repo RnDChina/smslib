@@ -108,85 +108,26 @@ class SmsProxy implements ISms
         $this->smsType = $this->smsConfig['smsType'];
         switch($this->smsType) {
             case self::_SMS189_CUSTOM_:
-                /*  array(
-                        //类型为天翼自定义验证码方式
-                        'smsType'   => 'sms189_custom',
-                        //App Id
-                        'app_id'    => '815014150000040983',
-                        //App Secret
-                        'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4'
-                    )
-                */
                 $this->smsEntity = new CustomSms();
                 $this->smsEntity->setConf($config);
                 break;
             case self::_SMS189_TEMPLATE_:
-                /*  array(
-                       //类型为天翼模板短信方式
-                       'smsType'   => 'sms189_template',
-                       //App Id
-                       'app_id'    => '815014150000040983',
-                       //App Secret
-                       'app_secret'=> 'a0ea9692c603631b05f3a18362ec85e4',
-                       //模板ID
-                       'template_id' => xxx,
-                       //短信模板
-                       'template_param_tpl' => {"code":"%s","timeout":"%s"}
-                   )
-               */
                 $this->smsEntity = new TemplateSms();
                 $this->smsEntity->setConf($config);
                 break;
             case self::_SMSEMD_:
-                /*  array(
-                        //短信系统平台用户名即管理名称
-                        'username' => 'sms135006',
-                        //短信系统平台用户登录密码
-                        'password' => 'G95400SS',
-                        //在接口触发页面可以获取
-                        'secret_key' => 'c138e82cb43592b21e5877d3135ab227',
-                        //短信正文模板
-                        'content_tpl' => "您正在注册华友汇，本次验证码为:%s，两分钟内有效！【%s】",
-                        //短信后缀签名，需要中文输入法的左右括号，签名字数要在3-8个字 例：【公司名称】 短信内容 = 短信正文+短信签名
-                        'suffix' => '华友汇'
-                    )
-                */
                 $this->smsEntity = new EdmSms();
                 $this->smsEntity->setConf($config);
                 break;
             case self::_SMSENTINFO_:
-                /* array(
-                    'smsType'   => 'smsentinfo',
-                    'sn' => 'SDK-BBX-010-22217',
-                    'password' => '13022',
-                    'ext' => '',
-                    'rrid' => '',
-                    'stime' => '',
-                    'appName' => '多美淘'
-                )*/
                 $this->smsEntity = new EntinfoSms();
                 $this->smsEntity->setConf($config);
                 break;
             case self::_SMSCLOOPEN_:
-                /* array(
-                      'account_sid' => '8a48b5514dd25566014dd776124a0429',
-                      'account_token' => '4eb09d93e6a346128dfb59670cae009c',
-                      'app_id' => '8a48b5514dd25566014dd7765524042b',
-                      'is_sandbox' => true,
-                      'template_id' => 1
-                  )
-                 */
                 $this->smsEntity = new CloopenSms();
                 $this->smsEntity->setConf($config);
                 break;
             case self::_SMSVOICECLOOPEN_:
-                /* array(
-                        'account_sid' => '8a48b5514dd25566014dd776124a0429',
-                        'account_token' => '4eb09d93e6a346128dfb59670cae009c',
-                        'app_id' => '8a48b5514dd25566014dd7765524042b',
-                        'is_sandbox' => true,
-                    )
-                   */
                 $this->smsEntity = new CloopenVoiceSms();
                 $this->smsEntity->setConf($config);
                 break;
