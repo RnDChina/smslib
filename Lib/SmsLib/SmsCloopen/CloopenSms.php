@@ -4,7 +4,7 @@ namespace Lib\SmsLib\SmsCloopen;
 /**
  * ----------------------
  * CloopenSms.php
- * 
+ *
  * User: jian0307@icloud.com
  * Date: 2015/6/9
  * Time: 15:27
@@ -65,6 +65,7 @@ class CloopenSms extends BaseCloopen
             for ($i=0; $i<count($message); $i++) {
                 $data = $data. "'".$message[$i]."',";
             }
+            $data = rtrim($data,',');
             $body= "{'to':'$mobile','templateId':'$this->template_id','appId':'$this->app_id','datas':[".$data."]}";
         } else {
             $data="";
